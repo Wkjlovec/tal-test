@@ -8,22 +8,63 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true
-          lower-case-service-id: true
+          enabled: true  # 启用服务发现
+          lower-case-service-id: true  # 服务名小写
       routes:
-        - id: user-service
-          uri: lb://user-service
+        # consumer服务路由配置
+        - id: consumer-service
+          uri: lb://consumer-service  # lb:// 前缀表示使用负载均衡
           predicates:
-            - Path=/api/users/**
+            - Path=/api/consumer/**  # 匹配路径
           filters:
+            - StripPrefix=1
+        
+        
+        # 用户服务路由配置
+        - id: user-service
+          uri: lb://user-service  # lb:// 前缀表示使用负载均衡
+          predicates:
+            - Path=/api/users/**  # 匹配路径
+          filters:
+            # 请求速率限制器
+            - StripPrefix=1
             - name: RequestRateLimiter
               args:
-                redis-rate-limiter.replenishRate: 10  #每秒允许的请求数,也是bucket桶填充的速率
-                redis-rate-limiter.burstCapacity: 30  #一秒内允许的最大请求时,也就是bucket桶的最大容量
-                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 10  # 每秒允许的请求数,也是bucket桶填充的速率
+                redis-rate-limiter.burstCapacity: 30  # 一秒内允许的最大请求时,也就是bucket桶的最大容量
+                key-resolver: "#{@ipKeyResolver}"  # 使用IP地址作为限流的键
+            # 断路器配置
+            - name: CircuitBreaker
+              args:
+                name: userServiceCircuitBreaker
+                fallbackUri: forward:/fallback/user-service
+
+        # 商品服务路由配置
+        - id: product-service
+          uri: lb://product-service  # 使用负载均衡访问product-service
+          predicates:
+            - Path=/api/products/**  # 匹配路径
+          filters:
+            # 断路器配置
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: productServiceCircuitBreaker
+                fallbackUri: forward:/fallback/product-service
+            # 重试配置
+            - name: Retry
+              args:
+                retries: 3  # 重试次数
+                statuses: BAD_GATEWAY,GATEWAY_TIMEOUT,INTERNAL_SERVER_ERROR  # 需要重试的状态码
+                methods: GET  # 只对GET请求进行重试
+                backoff:
+                  firstBackoff: 100ms  # 第一次重试等待时间
+                  maxBackoff: 500ms  # 最大重试等待时间
+                  factor: 2  # 退避系数
+                  basedOnPreviousValue: false
 
   redis:
-    host: localhost
+    host: tencent_cloud
     port: 6379
 
 eureka:
@@ -36,3 +77,32 @@ eureka:
 logging:
   level:
     org.springframework.cloud.gateway: debug
+
+# Hystrix 全局配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000  # 默认超时时间
+      circuitBreaker:
+        enabled: true  # 启用断路器
+        requestVolumeThreshold: 10  # 断路器请求阈值
+        errorThresholdPercentage: 50  # 错误百分比阈值
+        sleepWindowInMilliseconds: 5000  # 断路器打开后的休眠时间窗口
+  threadpool:
+    default:
+      coreSize: 10  # 核心线程池大小
+      maximumSize: 20  # 最大线程池大小
+      allowMaximumSizeToDivergeFromCoreSize: true  # 允许最大线程池大小与核心线程池大小不同
+
+# Actuator 配置，用于监控
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # 暴露所有端点
+  endpoint:
+    health:
+      show-details: always  # 显示详细健康信息

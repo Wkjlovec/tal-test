@@ -1,9 +1,9 @@
 -- 电商系统数据库表结构设计
 -- 数据库创建
-CREATE DATABASE IF NOT EXISTS ecommerce_db
+CREATE DATABASE IF NOT EXISTS tal
     CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE ecommerce_db;
+USE tal;
 
 -- 1. 用户表 (user)
 CREATE TABLE `user`

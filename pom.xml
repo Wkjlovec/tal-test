@@ -12,6 +12,8 @@
     <module>user-service</module>
     <module>product-service</module>
     <module>gateway-service</module>
+    <module>consumer-service</module>
+    <module>order-service</module>
   </modules>
   <parent>
     <groupId>org.springframework.boot</groupId>
