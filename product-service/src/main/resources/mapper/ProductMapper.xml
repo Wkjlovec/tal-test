@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.diinj.productservice.mapper.ProductMapper">
+    <resultMap id="ProductResultMap" type="cn.diinj.productservice.model.Product">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="price" column="price"/>
+        <result property="stockQuantity" column="stock_quantity"/>
+        <result property="brand" column="brand"/>
+        <result property="sku" column="sku"/>
+    </resultMap>
+
+    <select id="selectProductById" resultMap="ProductResultMap">
+        SELECT * FROM product WHERE id = #{id}
+    </select>
+
+    <select id="selectAllProducts" resultMap="ProductResultMap">
+        SELECT * FROM product
+    </select>
+
+    <insert id="insertProduct" parameterType="cn.diinj.productservice.model.Product">
+        INSERT INTO product (name, description, price, stock_quantity, brand, sku)
+        VALUES (#{name}, #{description}, #{price}, #{stockQuantity}, #{brand}, #{sku})
+    </insert>
+
+    <update id="updateProduct" parameterType="cn.diinj.productservice.model.Product">
+        UPDATE product
+        SET name = #{name}, description = #{description}, price = #{price},
+            stock_quantity = #{stockQuantity}, brand = #{brand}, sku = #{sku}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteProduct">
+        DELETE FROM product WHERE id = #{id}
+    </delete>
+</mapper> 

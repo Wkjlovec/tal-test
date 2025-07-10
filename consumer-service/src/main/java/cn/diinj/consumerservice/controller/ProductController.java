@@ -1,8 +1,8 @@
 package cn.diinj.consumerservice.controller;
 
-import cn.diinj.consumerservice.client.ProductServiceClient;
-import cn.diinj.consumerservice.model.Product;
-import cn.diinj.consumerservice.model.Result;
+import cn.diinj.api.client.ProductServiceClient;
+import cn.diinj.api.model.Product;
+import cn.diinj.api.model.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,33 +90,7 @@ public class ProductController {
      */
     @DeleteMapping("/{id}")
     public Result<Map<String, String>> deleteProduct(@PathVariable Long id) {
-        Map<String, String> response = productServiceClient.deleteProduct(id);
-        return Result.success(response);
-    }
-
-    /**
-     * Get products with delay (to demonstrate circuit breaking)
-     * Calls the product-service getProductsWithDelay endpoint through the gateway
-     * This endpoint will trigger the circuit breaker if the product-service is slow
-     * 
-     * @return List of products
-     */
-    @GetMapping("/slow")
-    public Result<List<Product>> getProductsWithDelay() {
-        List<Product> products = productServiceClient.getProductsWithDelay();
-        return Result.success(products);
-    }
-
-    /**
-     * Get unstable products (to demonstrate circuit breaking)
-     * Calls the product-service getUnstableProducts endpoint through the gateway
-     * This endpoint will trigger the circuit breaker if the product-service fails
-     * 
-     * @return List of products
-     */
-    @GetMapping("/unstable")
-    public Result<List<Product>> getUnstableProducts() {
-        List<Product> products = productServiceClient.getUnstableProducts();
-        return Result.success(products);
+        Map<String, String> result = productServiceClient.deleteProduct(id);
+        return Result.success(result);
     }
 }

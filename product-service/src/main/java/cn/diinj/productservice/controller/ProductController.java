@@ -1,117 +1,89 @@
 package cn.diinj.productservice.controller;
 
 import cn.diinj.productservice.model.Product;
+import cn.diinj.productservice.service.ProductSearchService;
+import cn.diinj.productservice.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-/**
- * Product Controller
- * Provides REST endpoints for product operations
- */
 @RestController
 @RequestMapping("/products")
 public class ProductController {
+private static final Logger log = LoggerFactory.getLogger(ProductController.class);
+@Autowired
+private ProductService productService;
+@Autowired
+private ProductSearchService productSearchService;
 
-    // Simulate a product database with a Map
-    private static final Map<Long, Product> productMap = new HashMap<>();
+@GetMapping
+public List<Product> getAllProducts() {
+    return productService.getAllProducts();
+}
 
-    // Initialize with some sample products
-    static {
-        productMap.put(1L, new Product(1L, "iPhone 15 Pro", "Apple's latest smartphone", 
-                        new BigDecimal("7999.00"), 100, "Apple", "IP15PRO001"));
-        productMap.put(2L, new Product(2L, "MacBook Pro 14", "Apple's professional laptop", 
-                        new BigDecimal("14999.00"), 50, "Apple", "MBP14001"));
-        productMap.put(3L, new Product(3L, "Xiaomi 13 Pro", "Xiaomi's flagship phone", 
-                        new BigDecimal("4999.00"), 200, "Xiaomi", "MI13PRO001"));
-    }
+@GetMapping("/{id}")
+public Product getProductById(@PathVariable Long id) {
+    return productService.getProductById(id);
+}
 
-    /**
-     * Get all products
-     * @return List of all products
-     */
-    @GetMapping
-    public List<Product> getAllProducts() {
-        return new ArrayList<>(productMap.values());
-    }
+/**
+ * es 模糊查询商品
+ */
+@GetMapping("/search")
+public List<Product> searchProductsByName(@RequestParam String name) {
+    log.debug("name :{}", name);
+    List<Product> result = productSearchService.searchByName(name);
+    log.debug(result.toString());
+    return result;
+}
 
-    /**
-     * Get product by ID
-     * @param id Product ID
-     * @return Product if found, or null
-     */
-    @GetMapping("/{id}")
-    public Product getProductById(@PathVariable Long id) {
-        return productMap.get(id);
-    }
+@GetMapping("/matches")
+public List<Product> matchesByName(@RequestParam String name) {
+    log.debug("name :{}", name);
+    List<Product> result = productSearchService.searchMathesName(name);
+    log.debug(result.toString());
+    return result;
+}
 
-    /**
-     * Create a new product
-     * @param product Product to create
-     * @return Created product
-     */
-    @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        // Generate a new ID (in a real app, this would be done by the database)
-        Long newId = productMap.size() + 1L;
-        product.setId(newId);
-        productMap.put(newId, product);
-        return product;
-    }
+@GetMapping("/search/like")
+public List<Product> searchByNameLike(@RequestParam String name) {
+    return productSearchService.searchByNameLike(name);
+}
 
-    /**
-     * Update an existing product
-     * @param id Product ID
-     * @param product Updated product data
-     * @return Updated product
-     */
-    @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        product.setId(id);
-        productMap.put(id, product);
-        return product;
-    }
+@GetMapping("/search/brand-price")
+public List<Product> searchByBrandAndPriceBetween(@RequestParam String brand,
+        @RequestParam double min, @RequestParam double max) {
+    return productSearchService.searchByBrandAndPriceBetween(brand, min, max);
+}
 
-    /**
-     * Delete a product
-     * @param id Product ID
-     * @return Success message
-     */
-    @DeleteMapping("/{id}")
-    public Map<String, String> deleteProduct(@PathVariable Long id) {
-        productMap.remove(id);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Product deleted successfully");
-        return response;
-    }
+@GetMapping("/search/prefix")
+public List<Product> searchByNamePrefixOrderByPriceDesc(@RequestParam String prefix) {
+    return productSearchService.searchByNamePrefixOrderByPriceDesc(prefix);
+}
 
-    /**
-     * Slow endpoint to demonstrate circuit breaking
-     * This endpoint will delay for 3 seconds before responding
-     * @return List of products
-     */
-    @GetMapping("/slow")
-    public List<Product> getProductsWithDelay() throws InterruptedException {
-        // Simulate a slow response
-        TimeUnit.SECONDS.sleep(3);
-        return new ArrayList<>(productMap.values());
-    }
+@PostMapping
+public Product createProduct(@RequestBody Product product) {
+    productService.addProduct(product);
+    return product;
+}
 
-    /**
-     * Endpoint that randomly fails to demonstrate circuit breaking
-     * @return List of products or error
-     */
-    @GetMapping("/unstable")
-    public List<Product> getUnstableProducts() {
-        // Randomly fail 50% of the time
-        if (Math.random() < 0.5) {
-            throw new RuntimeException("Service temporarily unavailable");
-        }
-        return new ArrayList<>(productMap.values());
-    }
+@PutMapping("/{id}")
+public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    product.setId(id);
+    productService.updateProduct(product);
+    return product;
+}
+
+@DeleteMapping("/{id}")
+public Map<String, String> deleteProduct(@PathVariable Long id) {
+    productService.deleteProduct(id);
+    Map<String, String> response = new HashMap<>();
+    response.put("message", "Product deleted successfully");
+    return response;
+}
 }

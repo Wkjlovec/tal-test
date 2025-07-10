@@ -1,19 +1,54 @@
 package cn.diinj.productservice.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import java.math.BigDecimal;
 
 /**
  * Product model
  * Represents a product in the system
  */
+@Document(indexName = "product")
 public class Product {
+
+/**
+ * type = FieldType.Text：
+ * 表示这是一个可被全文搜索（Full Text Search）分析的字段。
+ * Elasticsearch 会将其作为文本进行分析（分词）。
+ * analyzer = "ik_smart"：
+ * 用于 创建索引时 的分词器（index analyzer）。
+ * ik_smart 是 IK 分词器的一种，倾向于 粗粒度 分词（适合提升搜索性能，牺牲部分精度）。
+ * searchAnalyzer = "ik_smart"：
+ * 用于 搜索时 的分词器。
+ * 和 analyzer 一样配置表示索引和搜索使用相同的分词规则
+ */
+
+@Id
     private Long id;
+@Field(type = FieldType.Text, analyzer = "ik_smart", searchAnalyzer = "ik_smart")
     private String name;
+@Field(type = FieldType.Text, analyzer = "ik_smart", searchAnalyzer = "ik_smart")
     private String description;
+@Field(type = FieldType.Double)
     private BigDecimal price;
+@Field(type = FieldType.Integer)
     private Integer stockQuantity;
+/**
+ * FiledType.KeyWord
+ * 用于精确匹配、聚合和排序
+ * 原样存储为一个整体（keyword doc values）
+ */
+@Field(type = FieldType.Keyword)
     private String brand;
+@Field(type = FieldType.Keyword)
     private String sku;
+@Field(type = FieldType.Integer)
+private Integer soldQuantity;
+@Field(type = FieldType.Long)
+private Long categoryId;
     
     // Default constructor
     public Product() {
@@ -87,6 +122,22 @@ public class Product {
     public void setSku(String sku) {
         this.sku = sku;
     }
+
+public Integer getSoldQuantity() {
+    return soldQuantity;
+}
+
+public void setSoldQuantity(Integer soldQuantity) {
+    this.soldQuantity = soldQuantity;
+}
+
+public Long getCategoryId() {
+    return categoryId;
+}
+
+public void setCategoryId(Long categoryId) {
+    this.categoryId = categoryId;
+}
     
     @Override
     public String toString() {
@@ -98,6 +149,8 @@ public class Product {
                 ", stockQuantity=" + stockQuantity +
                 ", brand='" + brand + '\'' +
                 ", sku='" + sku + '\'' +
+                ", soldQuantity=" + soldQuantity +
+                ", categoryId=" + categoryId +
                 '}';
     }
 }

@@ -1,7 +1,7 @@
 package cn.diinj.consumerservice.config;
 
-import cn.diinj.consumerservice.client.ProductServiceClient;
-import cn.diinj.consumerservice.client.UserServiceClient;
+import cn.diinj.api.client.ProductServiceClient;
+import cn.diinj.api.client.UserServiceClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

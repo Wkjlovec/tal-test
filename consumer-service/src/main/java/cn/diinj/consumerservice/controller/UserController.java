@@ -1,9 +1,9 @@
 package cn.diinj.consumerservice.controller;
 
-import cn.diinj.consumerservice.client.UserServiceClient;
-import cn.diinj.consumerservice.model.LoginRequest;
-import cn.diinj.consumerservice.model.Result;
-import cn.diinj.consumerservice.model.User;
+import cn.diinj.api.client.UserServiceClient;
+import cn.diinj.api.model.LoginRequest;
+import cn.diinj.api.model.Result;
+import cn.diinj.api.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

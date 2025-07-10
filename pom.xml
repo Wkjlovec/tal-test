@@ -13,7 +13,7 @@
     <module>product-service</module>
     <module>gateway-service</module>
     <module>consumer-service</module>
-    <module>order-service</module>
+    <module>tal-api</module>
   </modules>
   <parent>
     <groupId>org.springframework.boot</groupId>

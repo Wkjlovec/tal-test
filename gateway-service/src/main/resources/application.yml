@@ -58,13 +58,13 @@ spring:
                 statuses: BAD_GATEWAY,GATEWAY_TIMEOUT,INTERNAL_SERVER_ERROR  # 需要重试的状态码
                 methods: GET  # 只对GET请求进行重试
                 backoff:
-                  firstBackoff: 100ms  # 第一次重试等待时间
-                  maxBackoff: 500ms  # 最大重试等待时间
+                  firstBackoff: 1000ms  # 第一次重试等待时间
+                  maxBackoff: 5000ms  # 最大重试等待时间
                   factor: 2  # 退避系数
                   basedOnPreviousValue: false
 
   redis:
-    host: tencent_cloud
+    host: 119.29.60.95
     port: 6379
 
 eureka:
@@ -106,3 +106,6 @@ management:
   endpoint:
     health:
       show-details: always  # 显示详细健康信息
+
+
+#fallback
