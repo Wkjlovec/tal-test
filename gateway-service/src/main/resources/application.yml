@@ -64,7 +64,8 @@ spring:
                   basedOnPreviousValue: false
 
   redis:
-    host: 119.29.60.95
+    password: Wkj.031024
+    host: 119.29.60.195
     port: 6379
 
 eureka:
@@ -76,7 +77,8 @@ eureka:
 
 logging:
   level:
-    org.springframework.cloud.gateway: debug
+    com.ctrip.framework.apollo: debug
+#    org.springframework.cloud.gateway: debug
 
 # Hystrix 全局配置
 hystrix:
@@ -85,7 +87,7 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 5000  # 默认超时时间
+            timeoutInMilliseconds: 10000  # 默认超时时间
       circuitBreaker:
         enabled: true  # 启用断路器
         requestVolumeThreshold: 10  # 断路器请求阈值
@@ -96,7 +98,6 @@ hystrix:
       coreSize: 10  # 核心线程池大小
       maximumSize: 20  # 最大线程池大小
       allowMaximumSizeToDivergeFromCoreSize: true  # 允许最大线程池大小与核心线程池大小不同
-
 # Actuator 配置，用于监控
 management:
   endpoints:
@@ -109,3 +110,18 @@ management:
 
 
 #fallback
+# Apollo配置
+apollo:
+  meta: http://119.29.60.195:8080  # 
+  config-service: http://119.29.60.195:8080
+  bootstrap:
+    enabled: true
+    eagerLoad:
+      enabled: true
+    namespaces: application # 指定要监听的namespace
+
+# 应用信息
+app:
+  id: tal-test  # 替换为你的应用ID
+# 环境信息
+env: LOCAL

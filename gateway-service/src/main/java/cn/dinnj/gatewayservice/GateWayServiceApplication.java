@@ -1,5 +1,6 @@
 package cn.dinnj.gatewayservice;
 
+import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
@@ -16,6 +17,7 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 @EnableEurekaClient
 @EnableHystrix
 @EnableCircuitBreaker
+@EnableApolloConfig
 public class GateWayServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(GateWayServiceApplication.class, args);

@@ -15,6 +15,7 @@ import java.util.Map;
  * The fallback class provides fallback responses when the service is unavailable
  */
 @FeignClient(name = "product-service", path = "/products", fallback = ProductServiceClient.ProductServiceFallback.class)
+//api模块 feign进行简单fallback,方便复用
 public interface ProductServiceClient {
 
     /**
@@ -100,7 +101,7 @@ public interface ProductServiceClient {
         @Override
         public Map<String, String> deleteProduct(Long id) {
             Map<String, String> message = new HashMap<>();
-            message.put("message", "Product service is currently unavailable. Please try again later.");
+            message.put("message", "deleteProduct:Product service is currently unavailable. ");
             return message;
         }
 

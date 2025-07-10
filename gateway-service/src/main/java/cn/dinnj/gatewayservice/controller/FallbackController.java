@@ -15,6 +15,9 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/fallback")
+/**
+ * 网关层面的熔断
+ */
 public class FallbackController {
 
     /**

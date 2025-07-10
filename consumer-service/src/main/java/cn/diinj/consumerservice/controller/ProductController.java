@@ -3,10 +3,13 @@ package cn.diinj.consumerservice.controller;
 import cn.diinj.api.client.ProductServiceClient;
 import cn.diinj.api.model.Product;
 import cn.diinj.api.model.Result;
+import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandProperties;
+import com.netflix.hystrix.HystrixThreadPoolProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,17 +28,33 @@ public class ProductController {
         this.productServiceClient = productServiceClient;
     }
 
-    /**
-     * Get all products
-     * Calls the product-service getAllProducts endpoint through the gateway
-     * 
-     * @return List of all products
-     */
-    @GetMapping
-    public Result<List<Product>> getAllProducts() {
-        List<Product> products = productServiceClient.getAllProducts();
-        return Result.success(products);
+    //调用方使用HystrixCommand进行细粒度的熔断控制
+class GetProductCommand extends HystrixCommand<Product> {
+    private final Long productId;
+    
+    public GetProductCommand(Long productId) {
+        super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("ProductService")) // 3
+                .andThreadPoolPropertiesDefaults(HystrixThreadPoolProperties.Setter()
+                        .withCoreSize(20) // 3
+                )
+                .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+                        .withExecutionTimeoutInMilliseconds(100) // 3
+                )
+        );
+        this.productId = productId;
     }
+    
+    @Override
+    protected Product run() {
+        return productServiceClient.getProductById(productId);
+    }
+    
+    @Override
+    protected Product getFallback() {
+        //todo
+        return null;
+    }
+}
 
     /**
      * Get product by ID
@@ -46,10 +65,12 @@ public class ProductController {
      */
     @GetMapping("/{id}")
     public Result<Product> getProductById(@PathVariable Long id) {
-        Product product = productServiceClient.getProductById(id);
+        GetProductCommand hystrixCommand = new GetProductCommand(id);
+        Product product = hystrixCommand.execute();
         if (product != null) {
             return Result.success(product);
-        } else {
+        }
+        else {
             return Result.error(404, "Product not found");
         }
     }
