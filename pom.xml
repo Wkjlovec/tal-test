@@ -8,12 +8,11 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
+    <module>tal-api</module>
     <module>eureka-server</module>
+    <module>gateway-service</module>
     <module>user-service</module>
     <module>product-service</module>
-    <module>gateway-service</module>
-    <module>consumer-service</module>
-    <module>tal-api</module>
   </modules>
   <parent>
     <groupId>org.springframework.boot</groupId>

@@ -8,7 +8,6 @@
 
 用户服务 (user-service) - 用户注册、登录、个人信息管理
 商品服务 (product-service) - 商品信息管理、库存管理
-订单服务 (order-service) - 订单创建、状态管理
 支付服务 (payment-service) - 模拟支付处理
 网关服务 (gateway-service) - 统一入口
 注册中心 (eureka-server) - 服务注册发现
