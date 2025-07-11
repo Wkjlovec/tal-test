@@ -87,4 +87,67 @@ public void deleteProduct(Long id) {
     String key = PRODUCT_CACHE_PREFIX + id;
     redisTemplate.delete(key);
 }
+
+@Override
+public List<Product> getUserFavoriteProducts(Long userId) {
+    // 从Redis缓存中获取用户收藏的商品ID列表
+    String userFavoritesKey = "user:favorites:" + userId;
+    List<Long> favoriteProductIds = (List<Long>) redisTemplate.opsForValue().get(userFavoritesKey);
+    
+    if (favoriteProductIds == null || favoriteProductIds.isEmpty()) {
+        // 如果缓存中没有，从数据库查询（这里简化处理，实际应该查询user_favorites表）
+        // 为了演示，返回一些示例商品
+        return productMapper.selectAllProducts().subList(0, Math.min(3,
+                productMapper.selectAllProducts().size()));
+    }
+    
+    // 根据商品ID列表获取商品详情
+    return productMapper.selectProductsByIds(favoriteProductIds);
+}
+
+@Override
+public void addToUserFavorites(Long userId, Long productId) {
+    // 验证商品是否存在
+    Product product = getProductById(productId);
+    if (product == null) {
+        throw new RuntimeException("Product not found with id: " + productId);
+    }
+    
+    // 将商品添加到用户收藏列表
+    String userFavoritesKey = "user:favorites:" + userId;
+    List<Long> favoriteProductIds = (List<Long>) redisTemplate.opsForValue().get(userFavoritesKey);
+    
+    if (favoriteProductIds == null) {
+        favoriteProductIds = new java.util.ArrayList<>();
+    }
+    
+    if (!favoriteProductIds.contains(productId)) {
+        favoriteProductIds.add(productId);
+        redisTemplate.opsForValue().set(userFavoritesKey, favoriteProductIds, 30, TimeUnit.DAYS);
+    }
+    
+    // 实际项目中应该同时更新数据库
+    // productMapper.insertUserFavorite(userId, productId);
+}
+
+@Override
+public void removeFromUserFavorites(Long userId, Long productId) {
+    // 从用户收藏列表中移除商品
+    String userFavoritesKey = "user:favorites:" + userId;
+    List<Long> favoriteProductIds = (List<Long>) redisTemplate.opsForValue().get(userFavoritesKey);
+    
+    if (favoriteProductIds != null) {
+        favoriteProductIds.remove(productId);
+        if (favoriteProductIds.isEmpty()) {
+            redisTemplate.delete(userFavoritesKey);
+        }
+        else {
+            redisTemplate.opsForValue().set(userFavoritesKey, favoriteProductIds, 30,
+                    TimeUnit.DAYS);
+        }
+    }
+    
+    // 实际项目中应该同时更新数据库
+    // productMapper.deleteUserFavorite(userId, productId);
+}
 } 

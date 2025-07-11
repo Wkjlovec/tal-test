@@ -19,7 +19,7 @@ private static final Logger log = LoggerFactory.getLogger(HystrixTestService.cla
 public String testHystrixTimeout() {
     try {
         
-        Object property = ConfigurationManager.getConfigInstance().getProperty("hystrix.command" +
+        String property = (String) ConfigurationManager.getConfigInstance().getProperty("hystrix.command" +
                 ".default.execution.isolation.thread.timeoutInMilliseconds");
         log.info("timeout property:{}", property);
         Thread.sleep(6000);

@@ -41,4 +41,13 @@ User findByUsernameAndPassword(@Param("username") String username,
  */
 @Update("UPDATE user SET last_login_time = #{lastLoginTime} WHERE id = #{id}")
 int updateLastLoginTime(@Param("id") Long id, @Param("lastLoginTime") java.util.Date lastLoginTime);
+
+/**
+ * Find user by ID
+ *
+ * @param id user id
+ * @return User
+ */
+@Select("SELECT * FROM user WHERE id = #{id}")
+User findById(@Param("id") Long id);
 }

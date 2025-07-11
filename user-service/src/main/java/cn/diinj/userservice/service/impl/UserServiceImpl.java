@@ -32,4 +32,9 @@ public class UserServiceImpl implements UserService {
         
         return null;
     }
+    
+    @Override
+    public User getUserById(Long userId) {
+        return userMapper.findById(userId);
+    }
 }

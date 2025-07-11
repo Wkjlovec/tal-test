@@ -86,4 +86,54 @@ public Map<String, String> deleteProduct(@PathVariable Long id) {
     response.put("message", "Product deleted successfully");
     return response;
 }
+
+/**
+ * Get user's favorite products
+ *
+ * @param userId User ID
+ * @return List of user's favorite products
+ */
+@GetMapping("/user/{userId}/favorites")
+public List<Product> getUserFavoriteProducts(@PathVariable Long userId) {
+    log.debug("Getting favorite products for user: {}", userId);
+    // This would typically query a user_favorites table or similar
+    // For demo purposes, we'll return some sample products
+    List<Product> favoriteProducts = productService.getUserFavoriteProducts(userId);
+    log.debug("Found {} favorite products for user {}", favoriteProducts.size(), userId);
+    return favoriteProducts;
+}
+
+/**
+ * Add product to user's favorites
+ *
+ * @param userId    User ID
+ * @param productId Product ID
+ * @return Success message
+ */
+@PostMapping("/user/{userId}/favorites/{productId}")
+public Map<String, String> addToUserFavorites(@PathVariable Long userId,
+        @PathVariable Long productId) {
+    log.debug("Adding product {} to favorites for user: {}", productId, userId);
+    productService.addToUserFavorites(userId, productId);
+    Map<String, String> response = new HashMap<>();
+    response.put("message", "Product added to favorites successfully");
+    return response;
+}
+
+/**
+ * Remove product from user's favorites
+ *
+ * @param userId    User ID
+ * @param productId Product ID
+ * @return Success message
+ */
+@DeleteMapping("/user/{userId}/favorites/{productId}")
+public Map<String, String> removeFromUserFavorites(@PathVariable Long userId,
+        @PathVariable Long productId) {
+    log.debug("Removing product {} from favorites for user: {}", productId, userId);
+    productService.removeFromUserFavorites(userId, productId);
+    Map<String, String> response = new HashMap<>();
+    response.put("message", "Product removed from favorites successfully");
+    return response;
+}
 }

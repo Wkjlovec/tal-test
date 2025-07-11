@@ -12,4 +12,11 @@ public interface ProductMapper {
     int insertProduct(Product product);
     int updateProduct(Product product);
     int deleteProduct(@Param("id") Long id);
+    
+    /**
+     * Select products by ID list
+     * @param ids Product ID list
+     * @return List of products
+     */
+    List<Product> selectProductsByIds(@Param("ids") List<Long> ids);
 } 

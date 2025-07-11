@@ -72,6 +72,37 @@ public interface ProductServiceClient {
     @GetMapping("/unstable")
     List<Product> getUnstableProducts();
 
+/**
+ * Get user's favorite products
+ *
+ * @param userId User ID
+ * @return List of user's favorite products
+ */
+@GetMapping("/user/{userId}/favorites")
+List<Product> getUserFavoriteProducts(@PathVariable("userId") Long userId);
+
+/**
+ * Add product to user's favorites
+ *
+ * @param userId    User ID
+ * @param productId Product ID
+ * @return Success message
+ */
+@PostMapping("/user/{userId}/favorites/{productId}")
+Map<String, String> addToUserFavorites(@PathVariable("userId") Long userId, @PathVariable(
+        "productId") Long productId);
+
+/**
+ * Remove product from user's favorites
+ *
+ * @param userId    User ID
+ * @param productId Product ID
+ * @return Success message
+ */
+@DeleteMapping("/user/{userId}/favorites/{productId}")
+Map<String, String> removeFromUserFavorites(@PathVariable("userId") Long userId, @PathVariable(
+        "productId") Long productId);
+
     /**
      * Fallback implementation for ProductServiceClient
      * Provides fallback responses when the service is unavailable
@@ -113,6 +144,26 @@ public interface ProductServiceClient {
         @Override
         public List<Product> getUnstableProducts() {
             return new ArrayList<>();
+        }
+        
+        @Override
+        public List<Product> getUserFavoriteProducts(Long userId) {
+            return new ArrayList<>();
+        }
+        
+        @Override
+        public Map<String, String> addToUserFavorites(Long userId, Long productId) {
+            Map<String, String> message = new HashMap<>();
+            message.put("message", "addToUserFavorites: Product service is currently unavailable.");
+            return message;
+        }
+        
+        @Override
+        public Map<String, String> removeFromUserFavorites(Long userId, Long productId) {
+            Map<String, String> message = new HashMap<>();
+            message.put("message", "removeFromUserFavorites: Product service is currently " +
+                    "unavailable.");
+            return message;
         }
     }
 } 
