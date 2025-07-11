@@ -7,6 +7,7 @@
   <artifactId>tal-test</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  
   <modules>
     <module>tal-api</module>
     <module>eureka-server</module>
@@ -74,6 +75,22 @@
         <version>${apollo.version}</version>
       </dependency>
     </dependencies>
-
   </dependencyManagement>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>2.2.2.RELEASE</version> <!-- 版本应与 Spring Boot 父版本一致 -->
+        <executions>
+          <execution>
+            <id>repackage</id>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
