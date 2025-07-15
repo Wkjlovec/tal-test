@@ -12,7 +12,7 @@ public class TestController {
 private HystrixTestService hystrixTestService;
 
 @GetMapping("/test/hystrix")
-public String testHystrix() {
+public String testHystrix() throws InterruptedException {
     return hystrixTestService.testHystrixTimeout();
 }
 }

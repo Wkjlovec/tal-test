@@ -20,36 +20,38 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+@Autowired
+private UserService userService;
 
-    @Autowired
-    private ProductServiceClient productServiceClient;
+@Autowired
+private ProductServiceClient productServiceClient;
 
-    /**
-     * Login endpoint
-     * @param loginRequest login request
-     * @return Result with user info if login successful
-     */
-    @PostMapping("/login")
-    public Result<User> login(@RequestBody LoginRequest loginRequest) {
-        // Validate request
-        if (loginRequest == null || loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
-            return Result.error(400, "Username and password are required");
-        }
-
-        // Attempt login
-        User user = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
-        
-        // Return result
-        if (user != null) {
-            // Don't return password in response
-            user.setPassword(null);
-            return Result.success(user);
-        } else {
-            return Result.error(401, "Invalid username or password");
-        }
+/**
+ * Login endpoint
+ *
+ * @param loginRequest login request
+ * @return Result with user info if login successful
+ */
+@PostMapping("/login")
+public Result<User> login(@RequestBody LoginRequest loginRequest) {
+    // Validate request
+    if (loginRequest == null || loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+        return Result.error(400, "Username and password are required");
     }
+    
+    // Attempt login
+    User user = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
+    
+    // Return result
+    if (user != null) {
+        // Don't return password in response
+        user.setPassword(null);
+        return Result.success(user);
+    }
+    else {
+        return Result.error(401, "Invalid username or password");
+    }
+}
 
 /**
  * Get user's favorite products

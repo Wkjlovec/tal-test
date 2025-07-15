@@ -10,6 +10,11 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +24,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductSearchServiceImpl implements ProductSearchService {
@@ -80,4 +87,61 @@ public List<Product> searchByBrandAndPriceBetween(String brand, double min, doub
 public List<Product> searchByNamePrefixOrderByPriceDesc(String prefix) {
     return productRepository.findByNameStartingWithOrderByPriceDesc(prefix);
 }
-} 
+
+@Override
+public Map<String, Map<String, Object>> aggregateByBrand() {
+    SearchRequest searchRequest = new SearchRequest("product"); // 指定索引名
+    
+    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    // 设置size为0，不需要文档
+    searchSourceBuilder.size(0);
+    
+    // 创建按品牌分组的聚合
+    TermsAggregationBuilder brandAgg = AggregationBuilders
+            .terms("by_brand")
+            .field("brand");
+    
+    // 为每个品牌添加子聚合：平均价格
+    brandAgg.subAggregation(
+            AggregationBuilders.avg("avg_price").field("price")
+    );
+    
+    // 为每个品牌添加子聚合：销售总量
+    brandAgg.subAggregation(
+            AggregationBuilders.sum("total_sold").field("soldQuantity")
+    );
+    
+    // 将聚合添加到查询中
+    searchSourceBuilder.aggregation(brandAgg);
+    searchRequest.source(searchSourceBuilder);
+    
+    try {
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+        // 处理聚合结果
+        Map<String, Map<String, Object>> result = new HashMap<>();
+        // 获取品牌聚合结果
+        Terms brandTerms = searchResponse.getAggregations().get("by_brand");
+        for (Terms.Bucket bucket : brandTerms.getBuckets()) {
+            String brand = bucket.getKeyAsString();
+            long docCount = bucket.getDocCount(); 
+            
+            Aggregation avgPrice = bucket.getAggregations().get("avg_price");
+            double avgPriceValue = ((NumericMetricsAggregation.SingleValue) avgPrice).value();
+            
+            Aggregation totalSold = bucket.getAggregations().get("total_sold");
+            double totalSoldValue = ((NumericMetricsAggregation.SingleValue) totalSold).value();
+            
+            Map<String, Object> brandStats = new HashMap<>();
+            brandStats.put("count", docCount);
+            brandStats.put("avgPrice", avgPriceValue);
+            brandStats.put("totalSold", totalSoldValue);
+            
+            result.put(brand, brandStats);
+        }
+        return result;
+    } catch (IOException e) {
+        log.error("Error executing brand aggregation query", e);
+        throw new RuntimeException("Failed to execute aggregation query", e);
+    }
+}
+}

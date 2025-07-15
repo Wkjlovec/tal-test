@@ -26,6 +26,16 @@ public List<Product> getAllProducts() {
     return productService.getAllProducts();
 }
 
+@GetMapping("/hystrix-timeout")
+public String testHystrixTimeout(int timeout) throws InterruptedException {
+    Thread.sleep(timeout);
+    return "成功执行";
+}
+@GetMapping("/aggregate")
+public Map<String, Map<String, Object>> aggregate() {
+    return productSearchService.aggregateByBrand();
+}
+
 @GetMapping("/{id}")
 public Product getProductById(@PathVariable Long id) {
     return productService.getProductById(id);

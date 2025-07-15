@@ -1,7 +1,6 @@
 package cn.diinj.productservice.repository;
 
 import cn.diinj.productservice.model.Product;
-import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
@@ -24,9 +23,6 @@ import java.util.List;
 public interface ProductRepository extends ElasticsearchRepository<Product, Long> {
 // 名称模糊查询 ,containing = like ("%xxx%)
 List<Product> findByNameContaining(String name);
-
-@Query("{ \"match\": { \"name\": \"?0\" }}")
-List<Product> findByNameMatches(String name);
 
 //自定义通配符,需要自己加通配符
 List<Product> findByNameLike(String name);
